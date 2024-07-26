@@ -1,0 +1,63 @@
+from collections import deque, defaultdict
+
+class FriendGraph:
+    def __init__(self):
+        self.graph = defaultdict(set)
+
+    def add_friendship(self, person1, person2):
+        self.graph[person1].add(person2)
+        self.graph[person2].add(person1)
+
+    def get_friends(self, person):
+        return self.graph.get(person, set())
+
+    def common_friends(self, person1, person2):
+        friends1 = self.get_friends(person1)
+        friends2 = self.get_friends(person2)
+        return friends1.intersection(friends2)
+
+    def nth_connection(self, start, end):
+        if start not in self.graph or end not in self.graph:
+            return -1
+        
+        queue = deque([(start, 0)])  # (current person, current depth)
+        visited = set()
+
+        while queue:
+            current, depth = queue.popleft()
+            if current == end:
+                return depth
+            
+            visited.add(current)
+            for friend in self.graph[current]:
+                if friend not in visited:
+                    queue.append((friend, depth + 1))
+
+        return -1  # No connection found
+
+def main():
+    # Create the friend graph
+    friend_graph = FriendGraph()
+
+    # Add friendships
+    friend_graph.add_friendship('Alice', 'Bob')
+    friend_graph.add_friendship('Bob', 'Janice')
+    friend_graph.add_friendship('Alice', 'David')
+    friend_graph.add_friendship('David', 'Eve')
+    friend_graph.add_friendship('Janice', 'Eve')
+
+    # Get friends of Alice and Bob
+    print("Friends of Alice:", friend_graph.get_friends('Alice'))
+    print("Friends of Bob:", friend_graph.get_friends('Bob'))
+
+    # Find common friends
+    print("Common friends of Alice and Bob:", friend_graph.common_friends('Alice', 'Bob'))
+
+    # Find nth connection
+    print("Connection between Alice and Janice:", friend_graph.nth_connection('Alice', 'Janice'))
+    print("Connection between Alice and Bob:", friend_graph.nth_connection('Alice', 'Bob'))
+    print("Connection between Alice and Eve:", friend_graph.nth_connection('Alice', 'Eve'))
+    print("Connection between Alice and Charlie:", friend_graph.nth_connection('Alice', 'Charlie'))  # No connection
+
+if __name__ == "__main__":
+    main()
